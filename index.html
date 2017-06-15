@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			.con{
+				margin-top:20px;
+				margin-left:30px;
+				font-weight:bold;
+			}
+			.wrap{
+				margin-top: 50px;
+			}
+			b,span{
+				border: 1px solid #000;
+				padding: 5px;
+				margin-left: 20px;
+				font-weight: normal;
+				cursor: pointer;
+			}
+			span{
+				padding: 5px 10px;
+			}
+			.click{
+				background:#ff6666;
+				color: #fff;
+			}
+		</style>
+	</head>
+	<body ng-app="myApp" ng-controller="render" ng-init="index=0;state1=0;state2=1;start=0;end=5">
+		<div class="con">
+			<p ng-repeat="i in data" ng-if="$index == index">{{$index+1}}:</p>
+		</div>
+		<div class="wrap">
+			<b ng-click="last()">上一页</b>
+			<span ng-click="click(0)" ng-class="{click:0==index}">1</span>
+			<span ng-if="state1 == 1">...</span>
+			<span ng-class="{click:$index==index}" ng-repeat="i in data" ng-click="click($index)" ng-if="$index>start&&$index<end">{{$index+1}}</span>
+			<span ng-if="state2 == 1">...</span>
+			<span ng-click="click(len-1)" ng-class="{click:len-1==index}">{{len}}</span>
+			<b ng-click="next()">下一页</b>
+		</div>
+		<script src="js/mock.js"></script>
+		<script src="js/angular.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			document.onselectstart = function(){
+				return false;
+			}
+			var app = angular.module("myApp",[]);
+			app.service("mdata",function(){
+				var data = Mock.mock({
+					"name|17": [
+					    {
+					      "page|+1": [
+					      ]
+					    }
+					  ]
+				})
+				return data;
+			})
+			app.controller("render",function($scope,mdata){
+				$scope.data = mdata.name;
+				$scope.len = $scope.data.length;
+				$scope.click = function(ind){
+					$scope.index = ind;
+					$scope.common();
+				}
+				$scope.next = function(){
+					if($scope.index>=$scope.len-1) return;
+					$scope.index = $scope.index+1;
+					$scope.common()
+				}
+				$scope.last = function(){
+					if($scope.index<=0) return;
+					$scope.index = $scope.index-1;
+					$scope.common()
+				}
+				$scope.common = function(){
+					if($scope.index>=4&&$scope.index<=$scope.len-4){
+						$scope.start = $scope.index-3;
+						$scope.end = $scope.index+3;
+						$scope.state1 = 1;
+						if($scope.index == $scope.len-4){
+							$scope.state2 = 0;
+						}else{
+							$scope.state2 = 1;
+						}
+					}else if($scope.index>$scope.len-4){
+						$scope.start = $scope.len-6;
+						$scope.end = $scope.len-1;
+						$scope.state1 = 1;
+						$scope.state2 = 0;
+					}else{
+						$scope.start = 0;
+						$scope.end = 5;
+						$scope.state1 = 0;
+						$scope.state2 = 1;
+					}
+				}
+			})
+		</script>
+	</body>
+</html>
